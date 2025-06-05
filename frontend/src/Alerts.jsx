@@ -3,19 +3,26 @@ import React, { useEffect, useState } from "react";
 export default function Alerts() {
   const [alerts, setAlerts] = useState([]);
   useEffect(()=>{
+    let lastId = 0;
+    let es;
     fetch("/api/alerts")
       .then(res=>res.json())
-      .then(setAlerts);
-    const timer = setInterval(()=>{
-      fetch("/api/alerts")
-        .then(res=>res.json())
-        .then(setAlerts);
-    },3000);
-    return ()=>clearInterval(timer);
+      .then(data => {
+        setAlerts(data);
+        if (data.length) lastId = data[data.length-1].id;
+        es = new EventSource(`/api/alerts/stream?last_id=${lastId}`);
+        es.onmessage = evt => {
+          const payload = JSON.parse(evt.data);
+          lastId = payload.id;
+          setAlerts(prev => [...prev.slice(-9), payload]);
+        };
+      });
+    return () => es && es.close();
   },[]);
   return (
     <div>
       <h2 style={{fontWeight:800,marginBottom:12,fontSize:28}}>실시간 알림</h2>
+      <a href="/api/alerts/export" style={{color:"#1EA7FD",textDecoration:"none",marginBottom:12,display:"inline-block"}}>CSV 다운로드</a>
       <ul style={{listStyle:"none",padding:0}}>
         {alerts.length===0&&<li>최근 이상행위 없음</li>}
         {alerts.map(a=>

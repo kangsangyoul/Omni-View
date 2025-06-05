@@ -7,12 +7,9 @@ export default function Dashboard() {
     fetch("/api/dashboard")
       .then(res=>res.json())
       .then(setData);
-    const timer = setInterval(()=>{
-      fetch("/api/dashboard")
-        .then(res=>res.json())
-        .then(setData);
-    },2000);
-    return ()=>clearInterval(timer);
+    const es = new EventSource("/api/dashboard/stream");
+    es.onmessage = evt => setData(JSON.parse(evt.data));
+    return ()=>es.close();
   },[]);
   return (
     <div>
