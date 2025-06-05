@@ -1,0 +1,17 @@
+body {
+  background: #171a1e;
+  color: #fff;
+  margin: 0;
+  font-family: 'Inter', 'Pretendard', sans-serif;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  background: #23272d;
+}
+::-webkit-scrollbar-thumb {
+  background: #1ea7fd88;
+  border-radius: 4px;
+}
+button, input {
+  font-family: inherit;
+}
